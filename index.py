@@ -33,4 +33,3 @@ for doc in documents:
         print(f"Error processing AI response for document {doc['_id']}: {e}")
 
 dbHandler.close()
-aiHandler.client.close()
