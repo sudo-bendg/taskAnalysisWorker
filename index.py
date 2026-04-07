@@ -1,5 +1,5 @@
 import os
-from google import genai
+import re
 from dotenv import load_dotenv
 from db import MongoDBHandler
 from ai import AIHandler
@@ -20,7 +20,8 @@ for doc in documents:
     print(f"AI response: {responseText}")
 
     try:
-        responseDict = json.loads(responseText)
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", responseText.strip())
+        responseDict = json.loads(cleaned)
         print(responseDict)
         dbHandler.update_document(doc["_id"], "skills", responseDict["skills"])
         if responseDict["message"]:

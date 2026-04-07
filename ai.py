@@ -42,7 +42,7 @@ The first character of the response should be an opening curly bracket, and the 
         response = requests.post(
             f"{OLLAMA_BASE_URL}/api/generate",
             json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False},
-            timeout=120,
+            timeout=None,
         )
         response.raise_for_status()
         return response.json()["response"]
