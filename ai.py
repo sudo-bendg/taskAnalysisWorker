@@ -1,16 +1,17 @@
-from google import genai
+import os
+import requests
+
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL")
 
 class AIHandler:
-    def __init__(self):
-        self.client = genai.Client()
-
     def generatePrompt(self, task):
         prompt = f"""
 ### Role
 You are a Professional Skills Analyst and Career Strategist. Your goal is to deconstruct work task descriptions into high-level, industry-standard skill sets suitable for a professional database.
 
 ### Task
-Analyze the provided [Task Description]. Identify the hard skills, soft skills, methodologies, and tools implied or stated. 
+Analyze the provided [Task Description]. Identify the hard skills, soft skills, methodologies, and tools implied or stated.
 
 ### Guidelines for Skills
 - **Be Specific:** As well as general skills like "Communication," add further context with skills like "Stakeholder Management" or "Technical Documentation.". Note that the general skill is still important to include.
@@ -32,13 +33,16 @@ The first character of the response should be an opening curly bracket, and the 
 [Task Description]: {task}
 """
         return prompt
-    
+
     def generateTaskResponse(self, task):
         prompt = self.generatePrompt(task)
         return self.generateContent(prompt)
-    
+
     def generateContent(self, prompt):
-        response = self.client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt, config={'response_mime_type': 'application/json'}
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False},
+            timeout=120,
         )
-        return response.text
+        response.raise_for_status()
+        return response.json()["response"]
